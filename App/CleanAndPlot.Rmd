@@ -1,0 +1,152 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+
+##Import
+
+```{r}
+library(tidyverse)
+
+#gdp.df <- readr::read_csv("./GDP.csv")
+
+pop.df <- readr::read_csv("./POP3.csv")
+gdp.df <- readr::read_csv("./GDP2.csv")
+prod.df <- readr::read_csv("./AgPro.csv")
+```
+
+
+##Rename Columns
+
+```{r}
+
+colnames(pop.df)
+pop.df = pop.df %>% rename(Country.Code = `Country Code`)
+pop.df = pop.df %>% rename(Country.Name = `Country Name`)
+
+
+#colnames(gdp.df) = paste('g', colnames(gdp.df), sep="")
+gdp.df = gdp.df %>% rename(Country.Code = `Country Code`)
+gdp.df = gdp.df %>% rename(Country.Name = `Country Name`)
+
+head(prod.df)
+prod.df = prod.df %>% rename(Country.Code = `Area Abbreviation`)
+prod.df = prod.df %>% rename(Country.Name = `Area`)
+
+
+gdp.df = gdp.df %>% select(-`Indicator Name`, -`Indicator Code`)
+pop.df = pop.df %>% select(-`Indicator Name`, -`Indicator Code`)
+
+
+
+
+```
+
+
+##GATHER
+```{r}
+
+gdpgath = gdp.df %>% gather(key='year', value='GDP', '1983':'2013', na.rm=TRUE)
+gdpgath = gdpgath %>% select(., -('1960':'2019'))
+
+popgath = pop.df %>% gather(key='year', value='Population', '1983':'2013', na.rm=TRUE)
+popgath = popgath %>% select(., -('1960':'2019'))
+
+prodgath = prod.df %>% gather(key='year', value='prod', 'Y1983':'Y2013', na.rm=TRUE)
+prodgath = prodgath %>% select(., -('Y1961':'Y1982'))
+
+
+#get y axis out of scinot, interval x axis
+popgath %>% filter(Country.Name=='Afghanistan') %>%
+  ggplot(., aes(x=year, ymax=GDP, ymin=0)) +
+  geom_linerange(color='red4', size=0.9)
+
+
+
+
+prodgath %>% group_by(Item) %>%
+  summarise(sum=sum(prod)) %>%
+  arrange(desc(sum)) 
+
+popgath %>%  filter(year=='2013') %>%
+  arrange(desc(Population)) %>%
+  top_n(100)
+
+
+
+#get the y's out of year in prodgath
+
+
+prodgath = prodgath %>% mutate(., year = (gsub('Y', "", prodgath$year)))
+
+
+
+```
+
+
+
+
+
+
+
+
+##Merge?
+
+```{r}
+
+merge1 = inner_join(prodgath, popgath, by=c("Country.Name", "Country.Code", "year"))
+
+merge2 = inner_join(merge1, gdpgath, by=c("Country.Name", "Country.Code", "year"))
+
+zb.df <- readr::read_csv("./zabclean.csv")
+zb.df = zb.df %>% rename(Country.Name = 'Country')
+zb.dfu = zb.df %>% unique()
+
+merge3 = inner_join(merge2, zb.dfu, by="Country.Name")
+
+
+
+topitems = merge3 %>% filter(year=='2013') %>%
+  group_by(Item) %>%
+  summarise(sum=sum(prod)) %>%
+  arrange(desc(sum)) %>%
+  top_n(40)
+
+topitemitem = topitems %>% select(., Item)
+topitemitem
+
+merge4 = inner_join(merge3, topitemitem, by="Item")
+
+
+unique(merge4$Country.Name)
+unique(merge4$Income.Group)
+
+
+
+merge4 %>% filter(year=='2013') %>%
+  group_by(Income.Group) %>%
+  
+```
+
+#Consolidating Items
+
+```{r}
+#merge3 = merge3 %>% mutate(., year = (gsub('Vegetables, Other', "Vegeatables", merge3$Item)))
+#merge3 = merge3 %>% mutate(., year = (gsub('Sugar & Sweeteners', "Sugar (Raw Equivalent)", merge3$Item)))
+#merge3 = merge3 %>% mutate(., year = (gsub('Tomatoes and Products', "Vegetables", merge3$Item)))
+#merge3 = merge3 %>% mutate(., year = (gsub('Bananas', "Fruits - Excluding Wine", merge3$Item)))
+#merge3 = merge3 %>% mutate(., year = (gsub('Sugar Crops', "Sugar (Raw Equivalent)", merge3$Item)))
+#merge3 = merge3 %>% mutate(., year = (gsub('Sugar cane', "Sugar (Raw Equivalent)", merge3$Item)))
+#merge3 = merge3 %>% mutate(., year = (gsub('Oranges, Mandarines', "Fruits - Excluding Wine", merge3$Item)))
+#merge3 = merge3 %>% mutate(., year = (gsub('Onions', "Vegetables", merge3$Item)))
+#merge3 = merge3 %>% mutate(., year = (gsub('Poultry Meat', "Meat", merge3$Item)))
+#merge3 = merge3 %>% mutate(., year = (gsub('Bovine Meat', "Meat", merge3$Item)))
+#merge3 = merge3 %>% mutate(., year = (gsub('Pigmeat', "Meat", merge3$Item)))
+```
+
+
+
+
+
+

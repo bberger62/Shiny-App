@@ -1,0 +1,13 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+```{r}
+#gdp.df <- readr::read_csv("./GDP.csv")
+
+pop.df <- readr::read_csv("./POP3.csv")
+
+```
+
+
