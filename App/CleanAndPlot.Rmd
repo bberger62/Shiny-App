@@ -94,6 +94,12 @@ prodgath = prodgath %>% mutate(., year = (gsub('Y', "", prodgath$year)))
 ##Merge?
 
 ```{r}
+prodgath = prodgath %>% mutate(., Country.Name = (gsub('China, mainland', "China", prodgath$Country.Name)))
+prodgath = prodgath %>% mutate(., Country.Name = (gsub('China, Taiwan Province of', "China", prodgath$Country.Name)))
+prodgath = prodgath %>% mutate(., Country.Name = (gsub('China, Hong Kong SAR', "China", prodgath$Country.Name)))
+prodgath = prodgath %>% mutate(., Country.Name = (gsub('Macao SA', "China", prodgath$Country.Name)))
+
+
 
 merge1 = inner_join(prodgath, popgath, by=c("Country.Name", "Country.Code", "year"))
 
@@ -118,6 +124,11 @@ topitemitem
 
 merge4 = inner_join(merge3, topitemitem, by="Item")
 
+merge4$GDP = merge4$GDP/1000000000
+merge4$Population = merge4$Population/1000000
+merge4$GDPperCap = (merge4$GDP*1000000000)/(merge4$Population*1000000)
+
+
 
 unique(merge4$Country.Name)
 unique(merge4$Income.Group)
@@ -125,9 +136,97 @@ unique(merge4$Income.Group)
 
 
 merge4 %>% filter(year=='2013') %>%
-  group_by(Income.Group) %>%
-  
+  group_by(Income.Group) %>% 
+  summarise(sum=sum(prod))
+
+
+
+
+
+
+
+merge4 %>% filter(Country.Name=='Japan' & year=='2013') %>%
+  group_by(Item)
+
+  # ggplot(aes(x=Item, y=prod))+
+  # geom_bar(aes(fill=Element), stat='identity', position='dodge')
+
+merge4$GDP = merge4$GDP/1000000000
+merge4$Population = merge4$Population/1000000
+merge4$GDPperCap = (merge4$GDP*1000000000)/(merge4$Population*1000000)
+
+
+#year vs gdp per capita
+merge4 %>% filter(Country.Name=='Algeria') %>%
+  group_by(year) %>%
+  summarise(GDPcap = mean(GDPperCap)) %>%
+  ggplot(., aes(x=year, ymax=GDPcap, ymin=0)) +
+  geom_linerange(color='red4', size=0.9) +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
+
+
+#top 5 produce by year
+
+merge4 %>% filter(Country.Name=='China' & year=='2000') %>%
+  group_by(Item) %>%
+  summarise(outp = sum(prod)) %>%
+  arrange(desc(outp)) %>%
+  top_n(5) %>% 
+  ggplot() +
+  geom_bar(aes(x=reorder(Item, -outp),y=outp), stat='identity') +
+  theme(axis.text.x=element_text(angle=45, hjust=1))
+
+
+
+#types of produce toggle
+merge4 %>% filter(Country.Name=='Algeria' & Item=='Barley and products') %>%
+  group_by(year) %>%
+  summarise(outp = sum(prod)) %>%
+  ggplot(., aes(x=year, ymax=outp, ymin=0)) +
+  geom_linerange(color='red4', size=0.9)
+
+
+
+
+##this is my scatter boy
+merge4 %>% filter(year=='2013' & Element=='Food') %>%
+  group_by(Country.Name) %>%
+  summarise(output=sum(prod), GDP=mean(GDP)) %>%
+  ggplot(aes(x=output, y=GDP, label=Country.Name)) +
+  geom_point() + 
+  ggtitle('Total Output vs. GDP') +
+  ylab('GDP ($bn)') +
+  xlab('Output (1000 tonnes)')
+
+
+
+
+
+
+mapdata = merge4 %>% group_by(year, Country.Name, Country.Code) %>%
+  summarise(tot=sum(prod))
+
+mapdata %>% select(Country.Name, -year)
+
+unique(mapdata$Country.Name)
+
+
+
+merge4 %>% group_by(Country.Name, year)
+
+
+write.csv(merge4, "./merge4.csv", row.names = FALSE)
+
+pwd
+
+
+
 ```
+
+
+
+
+
 
 #Consolidating Items
 
