@@ -87,6 +87,10 @@ prodgath = prodgath %>% mutate(., year = (gsub('Y', "", prodgath$year)))
 
 
 
+```{r}
+prodgath %>% filter(., Country.Name=='United States')
+prodgath %>% filter(., Country.Name=='United States of America')
+```
 
 
 
@@ -98,7 +102,7 @@ prodgath = prodgath %>% mutate(., Country.Name = (gsub('China, mainland', "China
 prodgath = prodgath %>% mutate(., Country.Name = (gsub('China, Taiwan Province of', "China", prodgath$Country.Name)))
 prodgath = prodgath %>% mutate(., Country.Name = (gsub('China, Hong Kong SAR', "China", prodgath$Country.Name)))
 prodgath = prodgath %>% mutate(., Country.Name = (gsub('Macao SA', "China", prodgath$Country.Name)))
-
+prodgath = prodgath %>% mutate(., Country.Name = (gsub('United States of America', 'United States', prodgath$Country.Name)))
 
 
 merge1 = inner_join(prodgath, popgath, by=c("Country.Name", "Country.Code", "year"))
@@ -141,7 +145,7 @@ merge4 %>% filter(year=='2013') %>%
 
 
 
-
+merge4 %>% filter(., Country.Name=='United States')
 
 
 
@@ -198,13 +202,87 @@ merge4 %>% filter(year=='2013' & Element=='Food') %>%
   ylab('GDP ($bn)') +
   xlab('Output (1000 tonnes)')
 
+merge4 %>% filter(year=='2013' & Element=='Food') %>%
+  group_by(Country.Name) %>%
+  summarise(output=sum(prod), popu=mean(Population)) %>%
+  ggplot(aes(x=output, y=popu, label=Country.Name)) +
+  geom_point() + 
+  ggtitle('Total Output vs. Population') +
+  ylab('Population (millions)') +
+  xlab('Output (1000 tonnes)')+
+  geom_smooth(method = "lm")
+
+
+
+merge4 %>% filter(year=='2013' & Element=='Food') %>%
+  group_by(Country.Name) %>%
+  summarise(output=sum(prod), gdppc=mean(GDPperCap)) %>%
+  ggplot(aes(x=output, y=gdppc, label=Country.Name)) +
+  geom_point() + 
+  ggtitle('Total Output vs. GDPPC') +
+  ylab('GDPPC ($)') +
+  xlab('Output (1000 tonnes)') +
+  geom_smooth(method = "lm")
 
 
 
 
-
-mapdata = merge4 %>% group_by(year, Country.Name, Country.Code) %>%
+mapdata = merge4  %>%
+  group_by(Country.Name, Country.Code, year) %>%
   summarise(tot=sum(prod))
+
+mapdata
+
+yoy = merge4 %>% filter((year=='2013'|year=='2012') & Element=='Food') %>%
+  group_by(Country.Name, year) %>%
+  summarise(output=sum(prod), gdppc=mean(GDPperCap)) 
+
+merge4 %>% filter((year=='2013'|year=='2012') & Element=='Food') %>%
+  group_by(Country.Name, year) %>%
+  summarise(output=sum(prod), gdppc=mean(GDPperCap)) %>%
+  group_by(Country.Name) %>%
+  summarise(outyy=(output[year=='2013']-output[year=='2012'])/output[year=='2012'], 
+            gdppcyy=(gdppc[year=='2013']-gdppc[year=='2012'])/gdppc[year=='2012']) %>%
+  ggplot(aes(x=outyy, y=gdppcyy, label=Country.Name)) +
+  geom_point() + 
+  ggtitle('YoY Output Growth vs. YoY GDPPC Growth') +
+  ylab('YoY GDPPC Growth (%)') +
+  xlab('YoY Output Growth (%)') +
+  geom_smooth(method = "lm")
+
+merge4 %>% filter(Income.Group=='Lower middle income' & (year=='2013'|year=='2012') & Element=='Food') %>%
+  group_by(Country.Name, year) %>%
+  summarise(output=sum(prod), gdppc=mean(GDPperCap)) %>%
+  group_by(Country.Name) %>%
+  summarise(outyy=(output[year=='2013']-output[year=='2012'])/output[year=='2012'], 
+            gdppcyy=(gdppc[year=='2013']-gdppc[year=='2012'])/gdppc[year=='2012']) %>%
+  ggplot(aes(x=outyy, y=gdppcyy, label=Country.Name)) +
+  geom_point() + 
+  ggtitle('YoY Output Growth vs. YoY GDPPC Growth') +
+  ylab('YoY GDPPC Growth (%)') +
+  xlab('YoY Output Growth (%)') +
+  geom_smooth(method = "lm")
+
+
+merge4 %>% filter(Region=='Sub-Saharan Africa' & (year=='2013'|year=='2012') & Element=='Food') %>%
+  group_by(Country.Name, year) %>%
+  summarise(output=sum(prod), gdppc=mean(GDPperCap)) %>%
+  group_by(Country.Name) %>%
+  summarise(outyy=(output[year=='2013']-output[year=='2012'])/output[year=='2012'], 
+            gdppcyy=(gdppc[year=='2013']-gdppc[year=='2012'])/gdppc[year=='2012']) %>%
+  ggplot(aes(x=outyy, y=gdppcyy, label=Country.Name)) +
+  geom_point() + 
+  ggtitle('YoY Output Growth vs. YoY GDPPC Growth') +
+  ylab('YoY GDPPC Growth (%)') +
+  xlab('YoY Output Growth (%)') +
+  geom_smooth(method = "lm")
+
+
+
+
+
+yoy
+
 
 mapdata %>% select(Country.Name, -year)
 

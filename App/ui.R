@@ -8,7 +8,10 @@ dashboardPage(
     sidebarMenu(
       menuItem('World Map',tabName = 'map',icon=icon('map')),
       menuItem('Production vs GDP', tabName = 'scatter', icon=icon('map')),
+      
+      menuItem('Comparing Growth', tabName = 'growth', icon=icon('map')),
       menuItem('Side by Side', tabName = 'sbs', icon = icon('map')),
+    
       menuItem('Top 5 Produce', tabName = 'Top5', icon = icon('map'))
     )
   ),
@@ -16,7 +19,11 @@ dashboardPage(
     tabItems(
       tabItem(tabName = "scatter",
               h2('Agricultural Output vs. GDP'),
-              box(plotlyOutput('GDP'), width=10)),
+              box(title= 'Year',
+                  sliderInput("slider3", "Year:", 1983, 2013, 1983), width = 10),
+              box(plotlyOutput('pop1'), width=4),
+              box(plotlyOutput('GDP'), width=4),
+              box(plotlyOutput('gdpcc1'), width=4)),
       
       
       
@@ -35,6 +42,29 @@ dashboardPage(
               )
       ),
       
+
+      tabItem(tabName='growth',
+              h2('Year over year growth in production and GDP per capita, 2013'),
+              fluidRow(
+                selectizeInput(inputId='incomegroup',
+                               label="Select Income Group:",
+                               choices=unique(merge4$Income.Group)),
+                selectizeInput(inputId='region1',
+                               label="Select Region:",
+                               choices=unique(merge4$Region)),
+                box(plotlyOutput('yoy11'), width=5),
+                box(plotlyOutput('yoy22'), width=5),
+
+              )
+      ),
+
+
+      
+      
+      
+      
+      
+      
       
       
       
@@ -47,14 +77,15 @@ dashboardPage(
                 selectizeInput(inputId='country2',
                                label="Select Country:",
                                choices=unique(merge4$Country.Name)),
+                selectizeInput(inputId='year1',
+                               label='Select Year:',
+                               choices=unique(merge4$year)),
                 box(plotlyOutput('top5'), width=10),
-                    selectizeInput(inputId='year1',
-                                   label='Select Year:',
-                                   choices=unique(merge4$year)),
+                selectizeInput(inputId='year2',
+                               label='Select Year:',
+                               choices=unique(merge4$year)),
                 box(plotlyOutput('top52'), width=10),
-                  selectizeInput(inputId='year2',
-                                 label='Select Year:',
-                                 choices=unique(merge4$year)),
+
               )
       ),
       
