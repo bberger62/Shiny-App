@@ -44,44 +44,23 @@ function(input, output) {
 
 
 
-
-
-
-    output$map = renderPlotly({
-      mapdata1 = mapdata %>% filter(., year==input$slider)
-      l = list(color=toRGB("grey"), width=0.5)
-      g <- list(
-        showframe = FALSE,
-        showcoastlines = FALSE,
-        projection = list(type = 'Mercator')
-      )
-      fig <- plot_geo(mapdata1)
-      fig <- fig %>% add_trace(
-          z = mapdata1$output, color = mapdata1$output, colors = 'Blues',
-          text = mapdata1$Country.Name, locations = mapdata1$Country.Code, marker = list(line = l)
-      )
-      fig <- fig %>% colorbar(title = '', tickprefix = '')
-      fig <- fig %>% layout(
-        title = 'Global Production by Year',
-        geo= g
-      )
-    })
-
-
+  output$map = renderPlotly({
     
-    # mapdata1 = mapdata %>% filter(., year==input$slider)
-    # 
-    # plot_geo(mapdata1) %>% 
-    #   add_trace(z = mapdata1[, input$worldmap_data], color = clean1[, input$worldmap_data], 
-    #             colors = 'Greens',
-    #             text = clean1$Country, 
-    #             locations = clean1$Code, 
-    #             marker = list(line = list(color = toRGB("grey"), width = 0.5))) %>% 
-    #   colorbar(title = '', ticksuffix = '') %>% 
-    #   layout(geo = list(
-    #     showframe = FALSE,
-    #     showcoastlines = FALSE,
-    #     projection = list(type = 'Mercator')
+  
+      mapdata1 = mapdata %>% filter(., year==input$slider)
+  
+      plot_geo(mapdata1) %>%
+        add_trace(z = ~tot, color = ~tot,
+                  colors = 'Greens',
+                  text = ~Country.Name,
+                  locations = ~Country.Code,
+                  marker = list(line = list(color = toRGB("grey"), width = 0.5))) %>%
+        colorbar(title = '', ticksuffix = '') %>%
+        layout(geo = list(
+          showframe = FALSE,
+          showcoastlines = FALSE,
+          projection = list(type = 'Mercator')))
+  })
     
     
     output$yoy11 = renderPlotly({
@@ -121,15 +100,7 @@ function(input, output) {
     
     
     
-    
-    
-    
-    
-    
-    
-    
-    
-    
+
 
     output$gdppercapi = renderPlotly({
       merge4 %>% filter(Country.Name==input$country) %>%

@@ -95,7 +95,7 @@ prodgath %>% filter(., Country.Name=='United States of America')
 
 
 
-##Merge?
+##Merge
 
 ```{r}
 prodgath = prodgath %>% mutate(., Country.Name = (gsub('China, mainland', "China", prodgath$Country.Name)))
@@ -155,9 +155,6 @@ merge4 %>% filter(Country.Name=='Japan' & year=='2013') %>%
   # ggplot(aes(x=Item, y=prod))+
   # geom_bar(aes(fill=Element), stat='identity', position='dodge')
 
-merge4$GDP = merge4$GDP/1000000000
-merge4$Population = merge4$Population/1000000
-merge4$GDPperCap = (merge4$GDP*1000000000)/(merge4$Population*1000000)
 
 
 #year vs gdp per capita
@@ -279,23 +276,9 @@ merge4 %>% filter(Region=='Sub-Saharan Africa' & (year=='2013'|year=='2012') & E
 
 
 
-
-
-yoy
-
-
-mapdata %>% select(Country.Name, -year)
-
-unique(mapdata$Country.Name)
-
-
-
-merge4 %>% group_by(Country.Name, year)
-
-
 write.csv(merge4, "./merge4.csv", row.names = FALSE)
 
-pwd
+as.character(merge4$year)
 
 
 
@@ -305,22 +288,6 @@ pwd
 
 
 
-
-#Consolidating Items
-
-```{r}
-#merge3 = merge3 %>% mutate(., year = (gsub('Vegetables, Other', "Vegeatables", merge3$Item)))
-#merge3 = merge3 %>% mutate(., year = (gsub('Sugar & Sweeteners', "Sugar (Raw Equivalent)", merge3$Item)))
-#merge3 = merge3 %>% mutate(., year = (gsub('Tomatoes and Products', "Vegetables", merge3$Item)))
-#merge3 = merge3 %>% mutate(., year = (gsub('Bananas', "Fruits - Excluding Wine", merge3$Item)))
-#merge3 = merge3 %>% mutate(., year = (gsub('Sugar Crops', "Sugar (Raw Equivalent)", merge3$Item)))
-#merge3 = merge3 %>% mutate(., year = (gsub('Sugar cane', "Sugar (Raw Equivalent)", merge3$Item)))
-#merge3 = merge3 %>% mutate(., year = (gsub('Oranges, Mandarines', "Fruits - Excluding Wine", merge3$Item)))
-#merge3 = merge3 %>% mutate(., year = (gsub('Onions', "Vegetables", merge3$Item)))
-#merge3 = merge3 %>% mutate(., year = (gsub('Poultry Meat', "Meat", merge3$Item)))
-#merge3 = merge3 %>% mutate(., year = (gsub('Bovine Meat', "Meat", merge3$Item)))
-#merge3 = merge3 %>% mutate(., year = (gsub('Pigmeat', "Meat", merge3$Item)))
-```
 
 
 
